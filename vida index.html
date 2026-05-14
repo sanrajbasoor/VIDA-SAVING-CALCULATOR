@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>VIDA Savings Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #E8001D;
+    --orange: #FF6B35;
+    --electric: #00E5FF;
+    --dark: #0D0D0D;
+    --card: #161616;
+    --card2: #1e1e1e;
+    --border: rgba(255,255,255,0.08);
+    --text: #f0f0f0;
+    --muted: #888;
+    --green: #00E676;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    padding: 16px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* LANGUAGE TOGGLE */
+  .lang-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+  }
+  .lang-toggle {
+    display: flex;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .lang-btn {
+    padding: 5px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 800;
+    font-family: 'Nunito', sans-serif;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .lang-btn.active {
+    background: linear-gradient(135deg, var(--red), var(--orange));
+    color: white;
+    box-shadow: 0 2px 10px rgba(232,0,29,0.3);
+  }
+
+  .hero {
+    text-align: center;
+    padding: 20px 16px 20px;
+  }
+  .bolt-icon {
+    font-size: 40px;
+    display: block;
+    margin-bottom: 8px;
+    animation: pulse-bolt 2s ease-in-out infinite;
+  }
+  @keyframes pulse-bolt {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+  .hero-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--red), var(--orange));
+    color: white;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+  .hero h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.15;
+    background: linear-gradient(135deg, #fff 40%, var(--electric));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p { color: var(--muted); font-size: 13px; margin-top: 6px; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+  .card-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .km-display { text-align: center; margin-bottom: 16px; }
+  .km-number {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--electric);
+    line-height: 1;
+  }
+  .km-unit { font-size: 14px; color: var(--muted); margin-top: 2px; }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 10px;
+    background: linear-gradient(to right, var(--electric) 0%, var(--electric) 15%, #333 15%, #333 100%);
+    outline: none;
+    cursor: pointer;
+    margin-bottom: 8px;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--electric);
+    box-shadow: 0 0 14px rgba(0,229,255,0.55);
+    cursor: pointer;
+  }
+  .range-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
+
+  .inputs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .input-group label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 5px; font-weight: 600; }
+  .input-wrap {
+    display: flex; align-items: center;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 10px;
+    gap: 4px;
+  }
+  .input-wrap:focus-within { border-color: var(--electric); }
+  .input-prefix { font-size: 12px; color: var(--muted); font-weight: 700; white-space: nowrap; }
+  .input-group input {
+    background: transparent; border: none; outline: none;
+    color: var(--text); font-size: 15px; font-weight: 700;
+    font-family: 'Nunito', sans-serif; width: 100%;
+  }
+
+  .year-tabs { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; margin-bottom: 14px; }
+  .year-tab {
+    background: var(--card2); border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 10px 4px; text-align: center; font-size: 12px; font-weight: 700;
+    color: var(--muted); cursor: pointer; transition: all 0.2s; font-family: 'Nunito', sans-serif;
+  }
+  .year-tab.active {
+    background: linear-gradient(135deg, var(--red), var(--orange));
+    border-color: transparent; color: white;
+    box-shadow: 0 4px 16px rgba(232,0,29,0.35);
+  }
+
+  .comparison { display: flex; flex-direction: column; gap: 12px; }
+  .compare-item {
+    background: var(--card2); border-radius: 12px; padding: 14px 16px;
+    border: 1px solid var(--border); position: relative; overflow: hidden;
+  }
+  .fill-bar {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    border-radius: 12px; transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1); opacity: 0.13;
+  }
+  .compare-item.petrol .fill-bar { background: var(--orange); }
+  .compare-item.vida .fill-bar { background: var(--electric); }
+  .compare-header {
+    display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1;
+  }
+  .compare-label { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; }
+  .compare-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .petrol .compare-dot { background: var(--orange); }
+  .vida .compare-dot { background: var(--electric); }
+  .compare-amount { font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 700; position: relative; z-index: 1; }
+  .petrol .compare-amount { color: var(--orange); }
+  .vida .compare-amount { color: var(--electric); }
+  .compare-sub { font-size: 10px; color: var(--muted); margin-top: 2px; position: relative; z-index: 1; }
+
+  .savings-card {
+    background: linear-gradient(135deg, #071a07, #0d2f0d);
+    border: 1.5px solid rgba(0,230,118,0.3);
+    border-radius: 16px; padding: 22px; margin-bottom: 14px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .savings-card::before {
+    content: ''; position: absolute; top: -30px; right: -30px;
+    width: 100px; height: 100px;
+    background: radial-gradient(circle, rgba(0,230,118,0.15), transparent 70%);
+  }
+  .savings-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--green); font-weight: 800; margin-bottom: 8px; }
+  .savings-amount {
+    font-family: 'Rajdhani', sans-serif; font-size: 50px; font-weight: 700;
+    color: var(--green); line-height: 1;
+  }
+  @keyframes pop-in {
+    0% { transform: scale(0.88); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .pop { animation: pop-in 0.35s cubic-bezier(0.22,1,0.36,1) forwards; }
+  .savings-tagline { margin-top: 8px; font-size: 12px; color: rgba(255,255,255,0.5); }
+  .savings-tagline span { color: var(--green); font-weight: 700; }
+
+  .breakdown-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .breakdown-cell {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 8px; text-align: center;
+  }
+  .breakdown-period { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 4px; }
+  .breakdown-save { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700; color: var(--green); }
+  .breakdown-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .desh-banner {
+    background: linear-gradient(135deg, #1a0800, #0a001a, #001a0a);
+    border: 1px solid rgba(255,153,51,0.2);
+    border-radius: 14px; padding: 14px 16px; text-align: center; margin-bottom: 14px;
+  }
+  .desh-flag { font-size: 22px; letter-spacing: 3px; margin-bottom: 4px; }
+  .desh-text { font-size: 12px; color: rgba(255,255,255,0.55); line-height: 1.6; }
+  .desh-text strong { color: #FF9933; }
+
+  .cta-btn {
+    display: block; width: 100%; padding: 16px;
+    background: linear-gradient(135deg, var(--red), var(--orange));
+    border: none; border-radius: 14px; color: white;
+    font-size: 16px; font-weight: 800; font-family: 'Nunito', sans-serif;
+    cursor: pointer; text-decoration: none; text-align: center; margin-bottom: 10px;
+    box-shadow: 0 6px 24px rgba(232,0,29,0.4);
+    transition: transform 0.15s;
+  }
+  .cta-btn:active { transform: scale(0.97); }
+
+  .vida-logo {
+    font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 3px; color: var(--red); text-align: center; margin-bottom: 4px; opacity: 0.6;
+  }
+  .footer-note { text-align: center; font-size: 10px; color: var(--muted); padding-bottom: 20px; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<!-- LANGUAGE TOGGLE -->
+<div class="lang-bar">
+  <div class="lang-toggle">
+    <button class="lang-btn" onclick="setLang('hi')" id="btn-hi">हिंदी</button>
+    <button class="lang-btn active" onclick="setLang('en')" id="btn-en">English</button>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <span class="bolt-icon">⚡</span>
+  <div class="hero-badge" data-en="Hero VIDA · EV Savings Calculator" data-hi="हीरो VIDA · बचत कैलकुलेटर">Hero VIDA · EV Savings Calculator</div>
+  <h1 data-en="How Much Will<br>You Save?" data-hi="पेट्रोल छोड़ने पर<br>कितना बचेगा?">How Much Will<br>You Save?</h1>
+  <p data-en="Enter your daily km — see your exact savings" data-hi="रोज का km डालो — सटीक बचत देखो">Enter your daily km — see your exact savings</p>
+</div>
+
+<!-- KM SLIDER -->
+<div class="card">
+  <div class="card-label" data-en="📍 How far do you ride daily?" data-hi="📍 रोज कितना चलते हो?">📍 How far do you ride daily?</div>
+  <div class="km-display">
+    <div class="km-number" id="kmDisplay">20</div>
+    <div class="km-unit" data-en="km / day" data-hi="km / दिन">km / day</div>
+  </div>
+  <input type="range" id="kmSlider" min="5" max="100" value="20" step="1">
+  <div class="range-labels"><span>5 km</span><span>50 km</span><span>100 km</span></div>
+</div>
+
+<!-- RATES -->
+<div class="card">
+  <div class="card-label" data-en="⚙️ Customize Your Rates" data-hi="⚙️ अपनी दरें बदलो">⚙️ Customize Your Rates</div>
+  <div class="inputs-row">
+    <div class="input-group">
+      <label data-en="⛽ Petrol Rate" data-hi="⛽ पेट्रोल रेट">⛽ Petrol Rate</label>
+      <div class="input-wrap">
+        <span class="input-prefix">₹</span>
+        <input type="number" id="petrolRate" value="107" min="80" max="200">
+        <span class="input-prefix">/L</span>
+      </div>
+    </div>
+    <div class="input-group">
+      <label data-en="🏍️ Bike Mileage" data-hi="🏍️ बाइक माइलेज">🏍️ Bike Mileage</label>
+      <div class="input-wrap">
+        <input type="number" id="mileage" value="45" min="20" max="80">
+        <span class="input-prefix">km/L</span>
+      </div>
+    </div>
+    <div class="input-group">
+      <label data-en="⚡ Electricity Rate" data-hi="⚡ बिजली दर">⚡ Electricity Rate</label>
+      <div class="input-wrap">
+        <span class="input-prefix">₹</span>
+        <input type="number" id="elecRate" value="8" min="3" max="15">
+        <span class="input-prefix">/U</span>
+      </div>
+    </div>
+    <div class="input-group">
+      <label data-en="🔋 VIDA Range" data-hi="🔋 VIDA रेंज">🔋 VIDA Range</label>
+      <div class="input-wrap">
+        <input type="number" id="vidaEff" value="30" min="15" max="50">
+        <span class="input-prefix">km/U</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- YEAR TABS + COMPARISON -->
+<div class="card" style="padding:16px;">
+  <div class="card-label" style="margin-bottom:12px" data-en="📅 Select Savings Period" data-hi="📅 कितने साल की बचत देखनी है?">📅 Select Savings Period</div>
+  <div class="year-tabs">
+    <div class="year-tab" onclick="setYear(1)" data-en="1 Year" data-hi="1 साल">1 Year</div>
+    <div class="year-tab" onclick="setYear(3)" data-en="3 Years" data-hi="3 साल">3 Years</div>
+    <div class="year-tab active" onclick="setYear(5)" data-en="5 Years" data-hi="5 साल">5 Years</div>
+    <div class="year-tab" onclick="setYear(10)" data-en="10 Years" data-hi="10 साल">10 Years</div>
+  </div>
+  <div class="comparison">
+    <div class="compare-item petrol">
+      <div class="fill-bar" id="petrolBar" style="width:100%"></div>
+      <div class="compare-header">
+        <div class="compare-label">
+          <span class="compare-dot"></span>
+          <span data-en="⛽ Petrol Engine" data-hi="⛽ पेट्रोल इंजन">⛽ Petrol Engine</span>
+        </div>
+        <div>
+          <div class="compare-amount" id="petrolAmt">₹0</div>
+          <div class="compare-sub" id="petrolSub">5 year expense</div>
+        </div>
+      </div>
+    </div>
+    <div class="compare-item vida">
+      <div class="fill-bar" id="vidaBar" style="width:12%"></div>
+      <div class="compare-header">
+        <div class="compare-label">
+          <span class="compare-dot"></span>
+          <span data-en="⚡ Hero VIDA" data-hi="⚡ हीरो VIDA">⚡ Hero VIDA</span>
+        </div>
+        <div>
+          <div class="compare-amount" id="vidaAmt">₹0</div>
+          <div class="compare-sub" id="vidaSub">5 year expense</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SAVINGS -->
+<div class="savings-card">
+  <div class="savings-label" data-en="🏆 Your Total Savings" data-hi="🏆 आपकी कुल बचत">🏆 Your Total Savings</div>
+  <div class="savings-amount" id="savingsAmt">₹0</div>
+  <div class="savings-tagline" id="savingsTagline"></div>
+</div>
+
+<!-- BREAKDOWN -->
+<div class="breakdown-row">
+  <div class="breakdown-cell">
+    <div class="breakdown-period" data-en="Per Day" data-hi="प्रति दिन">Per Day</div>
+    <div class="breakdown-save" id="dailySave">₹0</div>
+    <div class="breakdown-sub" data-en="saved" data-hi="बचत">saved</div>
+  </div>
+  <div class="breakdown-cell">
+    <div class="breakdown-period" data-en="Per Month" data-hi="प्रति माह">Per Month</div>
+    <div class="breakdown-save" id="monthlySave">₹0</div>
+    <div class="breakdown-sub" data-en="saved" data-hi="बचत">saved</div>
+  </div>
+  <div class="breakdown-cell">
+    <div class="breakdown-period" data-en="Per Year" data-hi="प्रति साल">Per Year</div>
+    <div class="breakdown-save" id="yearlySave">₹0</div>
+    <div class="breakdown-sub" data-en="saved" data-hi="बचत">saved</div>
+  </div>
+</div>
+
+<!-- DESHBHAKT -->
+<div class="desh-banner">
+  <div class="desh-flag">🇮🇳</div>
+  <div class="desh-text" 
+    data-en="By switching to VIDA, you don't just save money —<br><strong>you also reduce India's petrol import bill.</strong><br>Swadeshi thinking · Smart choice · Hero VIDA ⚡"
+    data-hi="पेट्रोल छोड़ के सिर्फ पैसा नहीं बचाते —<br><strong>आप India का import bill भी कम करते हो।</strong><br>स्वदेशी सोच · Smart choice · Hero VIDA ⚡">
+    By switching to VIDA, you don't just save money —<br><strong>you also reduce India's petrol import bill.</strong><br>Swadeshi thinking · Smart choice · Hero VIDA ⚡
+  </div>
+</div>
+
+<!-- CTA -->
+<a class="cta-btn" id="ctaBtn" href="https://wa.me/917612345678?text=BOOK" target="_blank"
+   data-en="🚀 Book Free Test Drive — Reply BOOK"
+   data-hi="🚀 Free Test Drive Book करो — Reply BOOK">
+  🚀 Book Free Test Drive — Reply BOOK
+</a>
+
+<div class="vida-logo">HERO VIDA · JABALPUR</div>
+<div class="footer-note" 
+  data-en="*Actual savings may vary based on riding conditions & local rates.<br>VIDA efficiency approx. 30 km/unit under standard conditions."
+  data-hi="*वास्तविक बचत सवारी की स्थिति और स्थानीय दरों पर निर्भर करती है।<br>VIDA की दक्षता सामान्य स्थितियों में लगभग 30 km/unit है।">
+  *Actual savings may vary based on riding conditions & local rates.<br>VIDA efficiency approx. 30 km/unit under standard conditions.
+</div>
+
+<script>
+  let selectedYears = 5;
+  let lang = 'en';
+  let km = 20, petrolRate = 107, mileage = 45, elecRate = 8, vidaEff = 30;
+
+  const taglines = {
+    en: {
+      1:  ["In 1 year you save —", "enough for a family dinner every week! 🍽️"],
+      3:  ["In 3 years you save —", "a premium smartphone for free! 📱"],
+      5:  ["In 5 years you save —", "that's a down payment on another vehicle! 🚗"],
+      10: ["In 10 years you save —", "you could buy another bike! 🏆"]
+    },
+    hi: {
+      1:  ["1 साल में इतना बचेगा —", "हर हफ्ते family dinner हो जाए! 🍽️"],
+      3:  ["3 साल में इतना बचेगा —", "एक premium smartphone free! 📱"],
+      5:  ["5 साल में इतना बचेगा —", "यह तो एक गाड़ी का down payment है! 🚗"],
+      10: ["10 साल में इतना बचेगा —", "एक और गाड़ी आ जाए भाई! 🏆"]
+    }
+  };
+
+  const subLabels = {
+    en: { 1:"1 year expense", 3:"3 year expense", 5:"5 year expense", 10:"10 year expense" },
+    hi: { 1:"1 साल का खर्चा", 3:"3 साल का खर्चा", 5:"5 साल का खर्चा", 10:"10 साल का खर्चा" }
+  };
+
+  function fmt(n) {
+    n = Math.round(n);
+    if (n >= 100000) return '₹' + (n / 100000).toFixed(1) + 'L';
+    return '₹' + n.toLocaleString('en-IN');
+  }
+
+  function calculate() {
+    const petrolPerKm = petrolRate / mileage;
+    const vidaPerKm   = elecRate / vidaEff;
+    const dailySaving = (petrolPerKm - vidaPerKm) * km;
+    const dailyPetrol = petrolPerKm * km;
+    const dailyVida   = vidaPerKm * km;
+    const days = selectedYears * 365;
+    const totalPetrol = dailyPetrol * days;
+    const totalVida   = dailyVida * days;
+    const totalSaving = dailySaving * days;
+
+    document.getElementById('petrolAmt').textContent = fmt(totalPetrol);
+    document.getElementById('vidaAmt').textContent   = fmt(totalVida);
+    document.getElementById('petrolSub').textContent = subLabels[lang][selectedYears];
+    document.getElementById('vidaSub').textContent   = subLabels[lang][selectedYears];
+
+    const el = document.getElementById('savingsAmt');
+    el.textContent = fmt(totalSaving);
+    el.classList.remove('pop');
+    void el.offsetWidth;
+    el.classList.add('pop');
+
+    document.getElementById('dailySave').textContent   = fmt(dailySaving);
+    document.getElementById('monthlySave').textContent = fmt(dailySaving * 30);
+    document.getElementById('yearlySave').textContent  = fmt(dailySaving * 365);
+
+    const t = taglines[lang][selectedYears];
+    document.getElementById('savingsTagline').innerHTML = `${t[0]} <span>${t[1]}</span>`;
+
+    const vidaPct = Math.max(4, Math.round((totalVida / totalPetrol) * 100));
+    document.getElementById('petrolBar').style.width = '100%';
+    document.getElementById('vidaBar').style.width   = vidaPct + '%';
+
+    const sliderPct = ((km - 5) / 95) * 100;
+    document.getElementById('kmSlider').style.background =
+      `linear-gradient(to right, var(--electric) 0%, var(--electric) ${sliderPct}%, #333 ${sliderPct}%, #333 100%)`;
+  }
+
+  function setLang(l) {
+    lang = l;
+    document.getElementById('btn-en').classList.toggle('active', l === 'en');
+    document.getElementById('btn-hi').classList.toggle('active', l === 'hi');
+
+    // Update all data-en / data-hi elements
+    document.querySelectorAll('[data-en]').forEach(el => {
+      const text = el.getAttribute('data-' + l);
+      if (el.tagName === 'H1' || el.classList.contains('desh-text') || el.classList.contains('footer-note')) {
+        el.innerHTML = text;
+      } else {
+        el.textContent = text;
+      }
+    });
+
+    calculate();
+  }
+
+  function setYear(y) {
+    selectedYears = y;
+    document.querySelectorAll('.year-tab').forEach((el, i) => {
+      el.classList.toggle('active', [1,3,5,10][i] === y);
+    });
+    calculate();
+  }
+
+  document.getElementById('kmSlider').addEventListener('input', function() {
+    km = parseInt(this.value);
+    document.getElementById('kmDisplay').textContent = km;
+    calculate();
+  });
+
+  ['petrolRate','mileage','elecRate','vidaEff'].forEach(id => {
+    document.getElementById(id).addEventListener('input', function() {
+      const v = parseFloat(this.value);
+      if (isNaN(v) || v <= 0) return;
+      if (id === 'petrolRate') petrolRate = v;
+      if (id === 'mileage')    mileage    = v;
+      if (id === 'elecRate')   elecRate   = v;
+      if (id === 'vidaEff')    vidaEff    = v;
+      calculate();
+    });
+  });
+
+  // Init in English
+  setLang('en');
+</script>
+</body>
+</html>
