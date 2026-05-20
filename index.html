@@ -551,32 +551,30 @@
     btn.disabled = true;
 
     try {
-      const res = await fetch('https://formspree.io/f/mpqbgonq', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({
-          Name: name,
-          Phone: phone,
-          Area: area || 'Not specified',
-          Source: 'VIDA Savings Calculator',
-          Time: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
-        })
-      });
+      const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzsLHMOV5ABAvbhxbyUOgEt57GUWE0Mk5rY2uaL5vZuAHNVrbcNROkxE3Xap0icsffY/exec';
 
-      if (res.ok) {
-        // Show calculator with personalised welcome
-        document.getElementById('gateScreen').style.display = 'none';
-        document.getElementById('calcScreen').style.display = 'block';
-        document.getElementById('welcomeName').textContent = '👋 Namaste, ' + name + '!';
-        document.getElementById('welcomeMsg').textContent = 'Your personalised VIDA savings report is ready below.';
-        window.scrollTo(0, 0);
-        setLang('en');
-        calculate();
-      } else {
-        btn.innerHTML = '⚡ Calculate My Savings — FREE';
-        btn.disabled = false;
-        alert('Something went wrong. Please try again.');
-      }
+      // Fire-and-forget to Google Sheets (no-cors avoids redirect issues)
+      fetch(SHEET_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: JSON.stringify({
+          name:    name,
+          phone:   phone,
+          city:    area || 'Not specified',
+          model:   'VIDA',
+          message: 'Source: VIDA Savings Calculator | ' + new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+        })
+      }).catch(() => {}); // silently ignore network errors
+
+      // Always show calculator — don't block on sheet response
+      document.getElementById('gateScreen').style.display = 'none';
+      document.getElementById('calcScreen').style.display = 'block';
+      document.getElementById('welcomeName').textContent = '👋 Namaste, ' + name + '!';
+      document.getElementById('welcomeMsg').textContent = 'Your personalised VIDA savings report is ready below.';
+      window.scrollTo(0, 0);
+      setLang('en');
+      calculate();
+
     } catch (err) {
       btn.innerHTML = '⚡ Calculate My Savings — FREE';
       btn.disabled = false;
