@@ -553,17 +553,17 @@
     try {
       const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzsLHMOV5ABAvbhxbyUOgEt57GUWE0Mk5rY2uaL5vZuAHNVrbcNROkxE3Xap0icsffY/exec';
 
-      // Fire-and-forget to Google Sheets (no-cors avoids redirect issues)
-      fetch(SHEET_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: JSON.stringify({
-          name:    name,
-          phone:   phone,
-          city:    area || 'Not specified',
-          model:   'VIDA',
-          message: 'Source: VIDA Savings Calculator | ' + new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
-        })
+      // Fire-and-forget to Google Sheets via GET (reliable with Apps Script)
+      const params = new URLSearchParams({
+        name:    name,
+        phone:   phone,
+        city:    area || 'Not specified',
+        model:   'VIDA',
+        message: 'Source: VIDA Savings Calculator | ' + new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+      });
+      fetch(SHEET_URL + '?' + params.toString(), {
+        method: 'GET',
+        mode: 'no-cors'
       }).catch(() => {}); // silently ignore network errors
 
       // Always show calculator — don't block on sheet response
